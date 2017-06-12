@@ -139,6 +139,29 @@ class ArticleController extends Controller
     }
 
     /**
+     * Post new article action
+     * 
+     * @Rest\View()
+     *
+     * @param ParamFetcher $fetcher
+     */
+    public function deleteArticleAction($id)
+    {
+        $article = $this->getRepo()->find($id);
+
+        if (!$article) {
+            throw $this->createNotFoundException("Could not find article with id " . $id);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        $em->remove($article);
+        $em->flush();
+
+        return $this->redirectToRoute('get_articles');
+    }
+
+    /**
      * Returns the form containing submittable data for this controller
      */
     private function getForm($article)

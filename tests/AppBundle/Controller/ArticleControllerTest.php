@@ -312,4 +312,52 @@ class ArticleControllerTest extends WebTestCase
 
         $this->assertEquals(400, $response->getStatusCode());
     }
+
+    /**
+     * Given the article REST endpoint
+     * When asked to delete an article
+     * Then the list of articles returned will not contain that article
+     */
+    public function testDeleteArticle()
+    {
+        $this->loadFixtures(array(
+            'AppBundle\DataFixtures\ORM\TwoAuthorsData',
+            'AppBundle\DataFixtures\ORM\TwoArticlesData',
+        ));
+
+        $expected = include __DIR__ . "/expected/secondArticleList.php";
+
+        $client = static::createClient();
+
+        $client->followRedirects();
+
+        $client->request('DELETE', '/articles/1');
+
+        $response = $client->getResponse();
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $actual = json_decode($response->getContent(), true);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Given the articles REST endpoint
+     * When asked to delete a nonexistent article
+     * Then the request will fail
+     */
+    public function testDeleteNonExistentArticle()
+    {
+        $this->loadFixtures(array(
+        ));
+
+        $client = static::createClient();
+
+        $client->request('DELETE', '/articles/1');
+
+        $response = $client->getResponse();
+
+        $this->assertEquals(404, $response->getStatusCode());
+    }
 }
