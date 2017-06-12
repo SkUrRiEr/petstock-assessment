@@ -65,13 +65,7 @@ class ArticleController extends Controller
     {
         $article = new Article();
 
-        $form = $this->createFormBuilder($article, array('csrf_protection' => false))
-            ->add("author", 'Symfony\Bridge\Doctrine\Form\Type\EntityType', array(
-                'class' => 'AppBundle:Author'
-            ))
-            ->add("title", Type\TextType::class)
-            ->add("content", Type\TextType::class)
-            ->getForm();
+        $form = $this->getForm($article);
 
         $data = $fetcher->all();
 
@@ -95,6 +89,22 @@ class ArticleController extends Controller
 
             return $this->redirectToRoute('get_article', array("id" => $article->getId()));
         }
+
+        return $form;
+    }
+
+    /**
+     * Returns the form containing submittable data for this controller
+     */
+    private function getForm($article)
+    {
+        $form = $this->createFormBuilder($article, array('csrf_protection' => false))
+            ->add("author", 'Symfony\Bridge\Doctrine\Form\Type\EntityType', array(
+                'class' => 'AppBundle:Author'
+            ))
+            ->add("title", Type\TextType::class)
+            ->add("content", Type\TextType::class)
+            ->getForm();
 
         return $form;
     }
