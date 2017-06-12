@@ -4,11 +4,13 @@ namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection as ArrayCollection;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Author entity
  * 
  * @ORM\Entity
+ * @Serializer\ExclusionPolicy("all")
  */
 class Author {
     /**
@@ -16,12 +18,14 @@ class Author {
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Serializer\Expose
      */
     private $id;
 
     /**
      * @var string Name of the author
      * @ORM\Column(type="string", length=255)
+     * @Serializer\Expose
      */
     private $name;
 

@@ -3,18 +3,27 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Article entity
  * 
  * @ORM\Entity
+ * @Serializer\ExclusionPolicy("all")
  */
 class Article {
+    /**
+     * @var integer Maximum amount of characters to show in the summary
+     */
+    const SUMMARY_LENGTH = 20;
+
     /**
      * @var int ID of the article
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Serializer\Expose
+     * @Serializer\Groups({"All"})
      */
     private $id;
 
@@ -33,18 +42,24 @@ class Article {
     /**
      * @var string Name of the article
      * @ORM\Column(type="string", length=255)
+     * @Serializer\Expose
+     * @Serializer\Groups({"All"})
      */
     private $title;
 
     /**
      * @var string Article content
      * @ORM\Column(type="text")
+     * @Serializer\Expose
+     * @Serializer\Groups({"Detail"})
      */
     private $content;
 
     /**
      * @var DateTime Created date of the article
      * @ORM\Column(type="datetime")
+     * @Serializer\Expose
+     * @Serializer\Groups({"All"})
      */
     private $createdAt;
 
@@ -188,10 +203,13 @@ class Article {
      * Get URL
      *
      * @return string
+     * 
+     * @Serializer\VirtualProperty
+     * @Serializer\Groups({"All"})
      */
     public function getUrl()
     {
-        return "/article/" . $this->getId();
+        return "/articles/" . $this->getId();
     }
 
     /**
@@ -216,5 +234,34 @@ class Article {
     public function getAuthor()
     {
         return $this->author;
+    }
+
+    /**
+     * Returns the name of the author
+     * 
+     * @return string
+     * @Serializer\VirtualProperty
+     * @Serializer\Groups({"All"})
+     * @Serializer\SerializedName("author")
+     */
+    public function getAuthorName()
+    {
+        return $this->author->getName();
+    }
+
+    /**
+     * Return a summary of the content
+     *
+     * @return string
+     * @Serializer\VirtualProperty
+     * @Serializer\Groups({"Summary"})
+     */
+    public function getSummary()
+    {
+        if (strlen($this->content) > self::SUMMARY_LENGTH - 3) {
+            return substr($this->content, 0, self::SUMMARY_LENGTH - 3) . "...";
+        }
+
+        return $this->content;
     }
 }

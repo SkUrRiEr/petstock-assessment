@@ -26,7 +26,7 @@ class ArticleController extends Controller
     }
 
     /**
-     * @Rest\View()
+     * @Rest\View(serializerGroups={"All","Summary"})
      */
     public function getArticlesAction()
     {
@@ -36,7 +36,7 @@ class ArticleController extends Controller
     }
 
     /**
-     * @Rest\View()
+     * @Rest\View(serializerGroups={"All","Detail"})
      */
     public function getArticleAction($id)
     { 
