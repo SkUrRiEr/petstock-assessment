@@ -1,3 +1,7 @@
-app:
-    resource: '@AppBundle/Controller/'
-    type: annotation
+author:
+    type: rest
+    resource: 'AppBundle:Author'
+
+article:
+    type: rest
+    resource: 'AppBundle:Article'
