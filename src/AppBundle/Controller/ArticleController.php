@@ -94,6 +94,51 @@ class ArticleController extends Controller
     }
 
     /**
+     * Post new article action
+     * 
+     * @Rest\View()
+     * @Rest\RequestParam(name="author_id", nullable=true)
+     * @Rest\RequestParam(name="title", nullable=true)
+     * @Rest\RequestParam(name="content", nullable=true)
+     *
+     * @param ParamFetcher $fetcher
+     */
+    public function putArticleAction($id, ParamFetcher $fetcher)
+    {
+        $article = $this->getRepo()->find($id);
+
+        if (!$article) {
+            throw $this->createNotFoundException("Could not find article with id " . $id);
+        }
+
+        $form = $this->getForm($article);
+
+        $data = $fetcher->all();
+
+        if (isset($data["author_id"])) {
+            $data["author"] = $data["author_id"];
+            unset($data["author_id"]);
+        }
+
+        $form->submit($data, true);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $article = $form->getData();
+
+            $article->setUpdatedAt(new \DateTime());
+
+            $em = $this->getDoctrine()->getManager();
+
+            $em->persist($article);
+            $em->flush();
+
+            return $this->redirectToRoute('get_article', array("id" => $article->getId()));
+        }
+
+        return $form;
+    }
+
+    /**
      * Returns the form containing submittable data for this controller
      */
     private function getForm($article)

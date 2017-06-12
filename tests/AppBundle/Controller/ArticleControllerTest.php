@@ -188,4 +188,128 @@ class ArticleControllerTest extends WebTestCase
 
         $this->assertEquals(400, $response->getStatusCode());
     }
+
+    /**
+     * Given the articles REST endpoint
+     * When given data to update an existing article
+     * Then the data returned will match the expected data
+     */
+    public function testUpdateArticle()
+    {
+        $this->loadFixtures(array(
+            'AppBundle\DataFixtures\ORM\TwoAuthorsData',
+            'AppBundle\DataFixtures\ORM\TwoArticlesData',
+        ));
+
+        $expected = include __DIR__ . "/expected/updatedArticle.php";
+
+        $client = static::createClient();
+
+        $client->followRedirects();
+
+        $client->request(
+            'PUT',
+            '/articles/1',
+            array(),
+            array(),
+            array('CONTENT_TYPE' => 'application/json'),
+            '{"author_id":1,"title":"test updated post article","content":"Some updated test article"}'
+        );
+
+        $response = $client->getResponse();
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $actual = json_decode($response->getContent(), true);
+
+        self::assertEquals($expected, $actual);
+    }
+
+    /**
+     * Given the articles REST endpoint
+     * When an attempt is made to update a nonexistent article
+     * Then the request will fail
+     */
+    public function testUpdateNonexistentArticle()
+    {
+        $this->loadFixtures(array(
+        ));
+
+        $client = static::createClient();
+
+        $client->followRedirects();
+
+        $client->request(
+            'PUT',
+            '/articles/9999',
+            array(),
+            array(),
+            array('CONTENT_TYPE' => 'application/json'),
+            '{"author_id":1,"title":"test updated post article","content":"Some updated test article"}'
+        );
+
+        $response = $client->getResponse();
+
+        $this->assertEquals(404, $response->getStatusCode());
+    }
+
+    /**
+     * Given the articles REST endpoint
+     * When an attempt is made to update an article with invalid data
+     * Then the request will fail
+     */
+    public function testUpdateArticleInvalid()
+    {
+        $this->loadFixtures(array(
+            'AppBundle\DataFixtures\ORM\TwoAuthorsData',
+            'AppBundle\DataFixtures\ORM\TwoArticlesData',
+        ));
+
+        $client = static::createClient();
+
+        $client->followRedirects();
+
+        $client->request(
+            'PUT',
+            '/articles/1',
+            array(),
+            array(),
+            array('CONTENT_TYPE' => 'application/json'),
+            '{"invalid":"INVALID"}'
+        );
+
+        $response = $client->getResponse();
+
+        $this->assertEquals(400, $response->getStatusCode());
+    }
+
+    /**
+     * Given the articles REST endpoint
+     * When an attempt is made to update an article with a nonexistent author id
+     * Then the request will fail
+     */
+    public function testUpdateArticleInvalidAuthor()
+    {
+        $this->loadFixtures(array(
+            'AppBundle\DataFixtures\ORM\TwoAuthorsData',
+            'AppBundle\DataFixtures\ORM\TwoArticlesData',
+        ));
+
+        $client = static::createClient();
+
+        $client->followRedirects();
+
+        $client->request(
+            'PUT',
+            '/articles/1',
+            array(),
+            array(),
+            array('CONTENT_TYPE' => 'application/json'),
+            '{"author_id":9999,"title":"test updated post article","content":"Some updated test article"}'
+        );
+
+        $response = $client->getResponse();
+
+        $this->assertEquals(400, $response->getStatusCode());
+    }
 }
