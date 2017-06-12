@@ -9,11 +9,13 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Routing\ClassResourceInterface;
 use FOS\RestBundle\Util\Codes;
 use FOS\RestBundle\View\View;
+use FOS\RestBundle\Request\ParamFetcher;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type;
 use AppBundle\Entity\Author;
 
 class AuthorController extends Controller
@@ -47,5 +49,37 @@ class AuthorController extends Controller
         }
 
         return $author;
+    }
+
+    /**
+     * Post new author action
+     * 
+     * @Rest\View()
+     * @Rest\RequestParam(name="name", nullable=false)
+     *
+     * @param ParamFetcher $fetcher
+     */
+    public function postAuthorAction(ParamFetcher $fetcher)
+    {
+        $author = new Author();
+
+        $form = $this->createFormBuilder($author, array('csrf_protection' => false))
+            ->add("name", Type\TextType::class)
+            ->getForm();
+
+        $form->submit($fetcher->all(), true);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $author = $form->getData();
+
+            $em = $this->getDoctrine()->getManager();
+
+            $em->persist($author);
+            $em->flush();
+
+            return $this->redirectToRoute('get_author', array("id" => $author->getId()));
+        }
+
+        return $form;
     }
 }

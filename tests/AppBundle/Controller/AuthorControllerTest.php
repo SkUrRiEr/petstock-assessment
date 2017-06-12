@@ -97,4 +97,62 @@ class AuthorControllerTest extends WebTestCase
 
         $this->assertEquals($expected, $actual);
     }
+
+    /**
+     * Given the authors REST endpoint
+     * When given data to create a new author
+     * Then the data returned will match the data given
+     */
+    public function testCreateAuthor()
+    {
+        $this->loadFixtures(array());
+
+        $client = static::createClient();
+
+        $client->followRedirects();
+
+        $client->request(
+            'POST',
+            '/authors',
+            array(),
+            array(),
+            array('CONTENT_TYPE' => 'application/json'),
+            '{"name": "Alex Atona"}'
+        );
+
+        $response = $client->getResponse();
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $actual = json_decode($response->getContent(), true);
+
+        $this->assertEquals("Alex Atona", $actual["name"]);
+    }
+
+    /**
+     * Given the authors REST endpoint
+     * When given invalid data to create a new author
+     * Then the request will fail
+     */
+    public function testCreateAuthorFailure()
+    {
+        $this->loadFixtures(array());
+
+        $client = static::createClient();
+
+        $client->followRedirects();
+
+        $client->request(
+            'POST',
+            '/authors',
+            array(),
+            array(),
+            array('CONTENT_TYPE' => 'application/json'),
+            '{"invalid": "INVALID"}'
+        );
+
+        $response = $client->getResponse();
+
+        $this->assertEquals(400, $response->getStatusCode());
+    }
 }
