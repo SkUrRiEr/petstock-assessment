@@ -30,9 +30,9 @@ class ArticleController extends Controller
      */
     public function getArticlesAction()
     {
-        $authors = $this->getRepo()->findAll();
+        $articles = $this->getRepo()->findAll();
 
-        return $authors;
+        return $articles;
     }
 
     /**
@@ -40,12 +40,12 @@ class ArticleController extends Controller
      */
     public function getArticleAction($id)
     { 
-        $author = $this->getRepo()->find($id);
+        $article = $this->getRepo()->find($id);
 
-        if (!$author) {
-            throw $this->createNotFoundException("Could not find author with id " . $id);
+        if (!$article) {
+            throw $this->createNotFoundException("Could not find article with id " . $id);
         }
 
-        return $author;
+        return $article;
     }
 }
